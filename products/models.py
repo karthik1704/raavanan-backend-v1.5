@@ -79,6 +79,7 @@ class ProductVariant(models.Model):
         related_name="variants",
         on_delete=models.CASCADE,
     )
+    variant_name = models.CharField(max_length=255, blank=True, null=True)
     color = models.CharField(max_length=100, blank=True, null=True)
     material = models.ForeignKey(
         Material, on_delete=models.DO_NOTHING, blank=True, null=True

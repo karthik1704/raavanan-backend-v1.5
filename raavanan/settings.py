@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-4sg1ypwls0*607w3l1rhkt2llot*tayyg6oso_usk6(h(3dnsv
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '139.59.41.103']
+ALLOWED_HOSTS = ["localhost", "139.59.41.103"]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "products",
     "orders",
+    "ui",
 ]
 
 SITE_ID = 1
@@ -113,6 +114,14 @@ DATABASES = {
         "PASSWORD": "uCH-3u94)2I5",
         "PORT": 5432,
     }
+    # "default": {
+    #     "ENGINE": "django.db.backends.postgresql",
+    #     "NAME": "raavananstore",
+    #     "HOST": "localhost",
+    #     "USER": "postgres",
+    #     "PASSWORD": "postgres",
+    #     "PORT": 5432,
+    # }
 }
 
 
