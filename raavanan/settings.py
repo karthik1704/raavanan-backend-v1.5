@@ -25,13 +25,15 @@ SECRET_KEY = "django-insecure-4sg1ypwls0*607w3l1rhkt2llot*tayyg6oso_usk6(h(3dnsv
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "139.59.41.103"]
+ALLOWED_HOSTS = ["localhost", "139.59.41.103", 'api.raavananstore.com', 'www.api.raavananstore.com' ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://139.59.41.103",
     "http://localhost",
+    "https://raavananstore.com",
+    "http://raavanastore.com",
 ]
 
 
