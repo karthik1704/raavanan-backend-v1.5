@@ -24,12 +24,43 @@ class Category(MP_Node):
         verbose_name_plural = "categories"
 
 
+class VariantTypes(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+FIELD_TYPES = (
+    ("TEXT", "Text"),
+    ("IMAGE", "Image"),
+    ("RADIO", "Radio"),
+    ("SELECT", "Select"),
+)
+
+
+class RequestExtra(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    request = models.CharField(max_length=255)
+    option = models.CharField(max_length=255, blank=True, null=True)
+    field_type = models.CharField(choices=FIELD_TYPES, default="TEXT")
+
+
 class Material(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
 
     def __str__(self):
         return self.name
+
+
+class GST(models.Model):
+    pass
 
 
 class Product(models.Model):
@@ -79,6 +110,9 @@ class ProductVariant(models.Model):
         related_name="variants",
         on_delete=models.CASCADE,
     )
+    type = models.ForeignKey(
+        VariantTypes, on_delete=models.DO_NOTHING, blank=True, null=True
+    )
     variant_name = models.CharField(max_length=255, blank=True, null=True)
     color = models.CharField(max_length=100, blank=True, null=True)
     material = models.ForeignKey(
@@ -108,3 +142,14 @@ class ProductVariantImage(models.Model):
         ProductVariant, related_name="variant_images", on_delete=models.CASCADE
     )
     image = models.ImageField(upload_to="products/", null=True, blank=True)
+
+
+class VariantSpecification(models.Model):
+    product = models.ForeignKey(
+        ProductVariant, related_name="variant_spec", on_delete=models.CASCADE
+    )
+    key = models.CharField(max_length=100)
+    value = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.key}: {self.value}"

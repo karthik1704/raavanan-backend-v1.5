@@ -10,12 +10,26 @@ from products.models import (
     ProductSpecification,
     ProductVariant,
     ProductVariantImage,
+    RequestExtra,
+    VariantTypes,
 )
 
-
 # Register your models here.
+
+
+class VariantTypeInline(admin.TabularInline):
+    model = VariantTypes
+    extra = 0
+
+
+class RequestExtraInline(admin.StackedInline):
+    model = RequestExtra
+    extra = 0
+
+
 class CategoryAdmin(TreeAdmin):
     form = movenodeform_factory(Category)
+    inlines = (VariantTypeInline, RequestExtraInline)
 
 
 class ProductImageInline(admin.TabularInline):
