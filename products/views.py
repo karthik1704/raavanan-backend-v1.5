@@ -26,7 +26,7 @@ class CategoryDetailView(RetrieveAPIView):
 class ProductListView(ListAPIView):
     serializer_class = ProductSerializer
     model = serializer_class.Meta.model
-    lookup_field = "category__slug"
 
     def get_queryset(self):
-        return self.model.objects.filter(publish=True)
+        slug = self.kwargs["slug"]
+        return self.model.objects.filter(publish=True, category__slug=slug)
