@@ -83,7 +83,7 @@ class ProductVariantListSerilizer(serializers.ModelSerializer):
         product_image = (
             obj.product.image.url
             if obj.product.image
-            else obj.product.product_images.all()[0].image.url
+            else obj.product.product_images.all().first().image.url
         )
         return request.build_absolute_uri(product_image)  # type: ignore
 
