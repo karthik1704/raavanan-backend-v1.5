@@ -11,10 +11,14 @@ class Category(MP_Node):
     name = models.CharField(max_length=30)
     slug = models.SlugField(unique=True)
     imageurl = models.ImageField(upload_to=f"categories/", blank=True, null=True)
-    node_order_by = ["name"]
+
+    decription = models.TextField(blank=True, default="")
+    keywords = models.CharField(max_length=255, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    node_order_by = ["name"]
 
     def __str__(self):
         return self.name
@@ -114,12 +118,8 @@ class ProductVariant(models.Model):
         VariantTypes, on_delete=models.DO_NOTHING, blank=True, null=True
     )
     variant_name = models.CharField(max_length=255, blank=True, null=True)
-    color = models.CharField(max_length=100, blank=True, null=True)
-    material = models.ForeignKey(
-        Material, on_delete=models.DO_NOTHING, blank=True, null=True
-    )
-    size = models.CharField(max_length=100, blank=True, null=True)
-    weight = models.CharField(max_length=20, blank=True, null=True)
+
+    image = models.ImageField(upload_to="products/", null=True, blank=True)
 
     mrp = models.DecimalField(max_digits=10, decimal_places=2)
     discount_percentage = models.DecimalField(
@@ -145,7 +145,7 @@ class ProductVariantImage(models.Model):
 
 
 class VariantSpecification(models.Model):
-    product = models.ForeignKey(
+    variant = models.ForeignKey(
         ProductVariant, related_name="variant_spec", on_delete=models.CASCADE
     )
     key = models.CharField(max_length=100)

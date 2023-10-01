@@ -11,6 +11,7 @@ from products.models import (
     ProductVariant,
     ProductVariantImage,
     RequestExtra,
+    VariantSpecification,
     VariantTypes,
 )
 
@@ -60,6 +61,17 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = (ProductImageInline, ProductSpecificationInline, ProductVariantInline)
 
 
+class VariantSpecInline(admin.TabularInline):
+    model = VariantSpecification
+    extra = 0
+    fk_name = "variant"
+
+
+class VariantAdmin(admin.ModelAdmin):
+    inlines = (ProductVariantImageInline, VariantSpecInline)
+
+
 admin.site.register(Product, ProductAdmin)
+admin.site.register(ProductVariant, VariantAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Material)

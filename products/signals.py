@@ -22,6 +22,6 @@ def add_variant_id(sender, instance, created, **kwargs):
         year = timezone.now().strftime("%Y")
         month = timezone.now().strftime("%m")
         id = str(instance.id)
-        variant_id = f"RA{year}{month}{id}"
+        variant_id = f"RAV{year}{month}{id}"
         instance.variant_id = variant_id
         instance.save()
