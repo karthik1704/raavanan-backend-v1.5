@@ -24,5 +24,5 @@ def add_variant_id(sender, instance, created, **kwargs):
         id = str(instance.id)
         variant_id = f"RAV{year}{month}{id}"
         instance.variant_id = variant_id
-        Metric.objects.create(variant=instance.id)
+        Metric.objects.create(variant=instance)
         instance.save()
