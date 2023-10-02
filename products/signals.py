@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from products.models import Product, ProductVariant
+from products.models import Metric, Product, ProductVariant
 
 
 @receiver(post_save, sender=Product)
@@ -24,4 +24,5 @@ def add_variant_id(sender, instance, created, **kwargs):
         id = str(instance.id)
         variant_id = f"RAV{year}{month}{id}"
         instance.variant_id = variant_id
+        Metric.objects.create(variant=instance.id)
         instance.save()

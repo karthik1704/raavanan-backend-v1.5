@@ -63,9 +63,9 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductVariantListSerilizer(serializers.ModelSerializer):
-    # product = ProductSerializer(read_only=True)
     title = serializers.SerializerMethodField()
     product_image = serializers.SerializerMethodField()
+    views = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductVariant
@@ -88,6 +88,9 @@ class ProductVariantListSerilizer(serializers.ModelSerializer):
             else None
         )
         return request.build_absolute_uri(product_image)  # type: ignore
+
+    def get_views(self, obj):
+        return obj.metrics.views
 
 
 class ProductVariantImageSerializer(serializers.ModelSerializer):
