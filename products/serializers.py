@@ -7,6 +7,7 @@ from products.models import (
     ProductSpecification,
     ProductVariant,
     ProductVariantImage,
+    RequestExtra,
     VariantSpecification,
 )
 
@@ -34,9 +35,24 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    thumbnail = serializers.SerializerMethodField()
+    original = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductImage
         fields = "__all__"
+
+    def get_thumbnail(self, obj):
+        request = self.context.get("request")
+        image = obj.image.url
+
+        return request.build_absolute_uri(image)  # type: ignore
+
+    def get_original(self, obj):
+        request = self.context.get("request")
+        image = obj.image.url
+
+        return request.build_absolute_uri(image)  # type: ignore
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
@@ -56,10 +72,17 @@ class ProductSerializer(serializers.ModelSerializer):
     product_images = ProductImageSerializer(many=True, read_only=True)
     variants = ProductVariantSerializer(many=True, read_only=True)
     product_spec = ProductSpecificationSerializer(many=True, read_only=True)
+    variant_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = "__all__"
+
+    def get_variant_id(self, obj):
+        variant = obj.variants.all().first()
+        variant_id = variant.variant_id
+
+        return variant_id
 
 
 class ProductVariantListSerilizer(serializers.ModelSerializer):
@@ -146,4 +169,14 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
+        fields = "__all__"
+
+
+class VariantDetailSerializer(ProductVariantListSerilizer):
+    pass
+
+
+class RequestExtraSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RequestExtra
         fields = "__all__"

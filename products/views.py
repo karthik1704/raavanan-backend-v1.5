@@ -1,12 +1,15 @@
+from django.db.models import Count, F, Max
 from django.http import Http404
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
+from products.models import Product, ProductVariant, VariantSpecification
 from products.serializers import (
     CategorySerializer,
     ProductDetailSerializer,
     ProductSerializer,
     ProductVariantListSerilizer,
+    RequestExtraSerializer,
 )
 
 # Create your views here
@@ -38,44 +41,77 @@ class ProductListView(ListAPIView):
         return self.model.objects.filter(publish=True, category__slug=slug)
 
 
+# class ProductVariantListView(ListAPIView):
+#     serializer_class = ProductVariantListSerilizer
+#     model = serializer_class.Meta.model
+
+#     def get_queryset(self):
+#         slug = self.kwargs["slug"]
+#         return self.model.objects.filter(
+#             publish=True, product__category__slug=slug, product__publish=True
+#         )
+
+
+# class ProductVariantTrendingView(ListAPIView):
+#     serializer_class = ProductVariantListSerilizer
+#     model = serializer_class.Meta.model
+
+#     def get_queryset(self):
+#         return self.model.objects.filter(
+#             publish=True,
+#             product__publish=True,
+#         ).order_by("-metrics__views")
+
+
+# class ProductVariantNewView(ListAPIView):
+#     serializer_class = ProductVariantListSerilizer
+#     model = serializer_class.Meta.model
+
+#     def get_queryset(self):
+#         return self.model.objects.filter(publish=True, product__publish=True).order_by(
+#             "-created_at"
+#         )[:10]
+
+
 class ProductVariantListView(ListAPIView):
-    serializer_class = ProductVariantListSerilizer
+    serializer_class = ProductSerializer
     model = serializer_class.Meta.model
 
     def get_queryset(self):
         slug = self.kwargs["slug"]
         return self.model.objects.filter(
-            publish=True, product__category__slug=slug, product__publish=True
+            publish=True,
+            category__slug=slug,
         )
 
 
 class ProductVariantTrendingView(ListAPIView):
-    serializer_class = ProductVariantListSerilizer
+    serializer_class = ProductSerializer
     model = serializer_class.Meta.model
 
     def get_queryset(self):
-        return self.model.objects.filter(
-            publish=True,
-            product__publish=True,
-        ).order_by("-metrics__views")
+        products = self.model.objects.annotate(
+            max_view_count=Max("variants__metrics__views")
+        )
+        main_products = products.filter(variants__metrics__views=F("max_view_count"))
+
+        return products
 
 
 class ProductVariantNewView(ListAPIView):
-    serializer_class = ProductVariantListSerilizer
+    serializer_class = ProductSerializer
     model = serializer_class.Meta.model
 
     def get_queryset(self):
-        return self.model.objects.filter(publish=True, product__publish=True).order_by(
-            "-created_at"
-        )[:10]
+        return self.model.objects.filter(publish=True).order_by("-created_at")[:10]
 
 
 class ProductVariantPopularView(ListAPIView):
-    serializer_class = ProductVariantListSerilizer
+    serializer_class = ProductSerializer
     model = serializer_class.Meta.model
 
     def get_queryset(self):
-        return self.model.objects.filter(publish=True, product__publish=True)
+        return self.model.objects.filter(publish=True)
 
 
 class ProductDetailView(RetrieveAPIView):
@@ -105,3 +141,31 @@ class ProductDetailView(RetrieveAPIView):
         variant.metrics.views += 1
         variant.metrics.save()
         return super().retrieve(request, *args, **kwargs)
+
+
+class VariantDetailView(RetrieveAPIView):
+    serializer_class = ProductVariantListSerilizer
+    model = serializer_class.Meta.model
+    lookup_field = "variant_id"
+
+    def get_queryset(self):
+        return self.model.objects.filter(publish=True, product__publish=True)
+
+
+class RequestExtraRetrieveView(ListAPIView):
+    serializer_class = RequestExtraSerializer
+    model = serializer_class.Meta.model
+    lookup_field = "vid"
+
+    def get_queryset(self):
+        return self.model.objects.all()
+
+    def get_object(self):
+        id = self.kwargs.get("vid")
+        category = Product.objects.get(variants__variant_id=id).category
+        print(category)
+        try:
+            extras = self.model.objects.filter(category=category)
+            return extras
+        except self.model.DoesNotExist:
+            return Http404

@@ -9,6 +9,12 @@ class WAOrder(models.Model):
         ProductVariant, related_name="order_product", on_delete=models.DO_NOTHING
     )
     order_id = models.CharField(unique=True, max_length=255, editable=False)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+    )
+
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
 
@@ -16,9 +22,10 @@ class WAOrder(models.Model):
     alternate_phone_number = models.CharField(max_length=30, blank=True, null=True)
 
     address = models.TextField()
-    landmark = models.CharField(max_length=255)
+    pincode = models.CharField(max_length=100)
+    landmark = models.CharField(max_length=255, blank=True, null=True)
 
-    extra = models.TextField()
+    extra = models.TextField(max_length=255, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -28,7 +35,9 @@ class WAOrder(models.Model):
 
 
 class ExtraInformation(models.Model):
-    waorder = models.ForeignKey(WAOrder, on_delete=models.CASCADE)
+    waorder = models.ForeignKey(
+        WAOrder, related_name="extra_info", on_delete=models.CASCADE
+    )
     question = models.CharField(max_length=255)
     answer = models.CharField(max_length=255)
-    image = models.ImageField(upload_to="order/")
+    image = models.ImageField(upload_to="order/", blank=True, null=True)
