@@ -70,6 +70,7 @@ class GST(models.Model):
 class Product(models.Model):
     product_id = models.CharField(unique=True, max_length=255, editable=False)
     product_name = models.CharField(max_length=255)
+    short_name = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="products/", null=True, blank=True)
@@ -83,7 +84,7 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.product_name
+        return f"{self.product_id}-{self.product_name}"
 
 
 class ProductSpecification(models.Model):
@@ -136,7 +137,7 @@ class ProductVariant(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
-        return self.variant_id
+        return f"{self.variant_id}-{self.variant_name} - {self.product.product_name}"
 
 
 # Product Variant Images
