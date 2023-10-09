@@ -38,7 +38,10 @@ class ProductListView(ListAPIView):
 
     def get_queryset(self):
         slug = self.kwargs["slug"]
-        return self.model.objects.filter(publish=True, category__slug=slug)
+        parents_with_variants = self.model.objects.annotate(
+            variant_count=Count("variants")
+        ).filter(variant_count__gt=0)
+        return parents_with_variants.filter(publish=True, category__slug=slug)
 
 
 # class ProductVariantListView(ListAPIView):
@@ -79,7 +82,11 @@ class ProductVariantListView(ListAPIView):
 
     def get_queryset(self):
         slug = self.kwargs["slug"]
-        return self.model.objects.filter(
+        parents_with_variants = self.model.objects.annotate(
+            variant_count=Count("variants")
+        ).filter(variant_count__gt=0)
+
+        return parents_with_variants.filter(
             publish=True,
             category__slug=slug,
         )
@@ -93,9 +100,15 @@ class ProductVariantTrendingView(ListAPIView):
         products = self.model.objects.annotate(
             max_view_count=Max("variants__metrics__views")
         )
-        main_products = products.filter(variants__metrics__views=F("max_view_count"))
+        parents_with_variants = products.annotate(
+            variant_count=Count("variants")
+        ).filter(variant_count__gt=0)
 
-        return products
+        main_products = parents_with_variants.filter(
+            variants__metrics__views=F("max_view_count")
+        )
+
+        return main_products
 
 
 class ProductVariantNewView(ListAPIView):
@@ -103,7 +116,10 @@ class ProductVariantNewView(ListAPIView):
     model = serializer_class.Meta.model
 
     def get_queryset(self):
-        return self.model.objects.filter(publish=True).order_by("-created_at")[:10]
+        parents_with_variants = self.model.objects.annotate(
+            variant_count=Count("variants")
+        ).filter(variant_count__gt=0)
+        return parents_with_variants.filter(publish=True).order_by("-created_at")[:10]
 
 
 class ProductVariantPopularView(ListAPIView):
