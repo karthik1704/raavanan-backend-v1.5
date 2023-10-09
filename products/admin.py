@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
@@ -47,8 +49,9 @@ class ProductVariantImageInline(admin.StackedInline):
 
 class ProductVariantInline(admin.StackedInline):
     model = ProductVariant
-    extra = 1
+    extra = 0
     inlines = (ProductVariantImageInline,)
+    readonly_fields = ("discount", "price")
 
 
 class ProductSpecificationInline(admin.TabularInline):
@@ -59,6 +62,20 @@ class ProductSpecificationInline(admin.TabularInline):
 
 class ProductAdmin(admin.ModelAdmin):
     inlines = (ProductImageInline, ProductSpecificationInline, ProductVariantInline)
+    search_fields = (
+        "product_id",
+        "product_name",
+    )
+
+    def save_related(self, request: Any, form: Any, formsets: Any, change: Any) -> None:
+        super().save_related(request, form, formsets, change)
+        # Calculate discount amounts for each variant
+        for variant in form.instance.variants.all():
+            variant.price = variant.mrp - (
+                variant.mrp * variant.discount_percentage / 100
+            )
+            variant.discount = variant.mrp - variant.price
+            variant.save()
 
 
 class VariantSpecInline(admin.TabularInline):
@@ -69,6 +86,15 @@ class VariantSpecInline(admin.TabularInline):
 
 class VariantAdmin(admin.ModelAdmin):
     inlines = (ProductVariantImageInline, VariantSpecInline)
+    autocomplete_fields = ("product",)
+    readonly_fields = ("discount", "price")
+
+    def save_model(self, request: Any, obj: Any, form: Any, change: Any) -> None:
+        obj.price = obj.mrp - (obj.mrp * obj.discount_percentage / 100)
+        obj.discount = obj.mrp - obj.price
+
+        obj.save()
+        return super().save_model(request, obj, form, change)
 
 
 admin.site.register(Product, ProductAdmin)
