@@ -71,6 +71,7 @@ class Product(models.Model):
     product_id = models.CharField(unique=True, max_length=255, editable=False)
     product_name = models.CharField(max_length=255)
     short_name = models.CharField(max_length=255, blank=True, null=True)
+    english_name = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="products/", null=True, blank=True)
