@@ -20,7 +20,7 @@ class CategoryListView(ListAPIView):
     model = serializer_class.Meta.model
 
     def get_queryset(self):
-        return self.model.objects.all()
+        return self.model.objects.all().order_by("created_at")
 
 
 class CategoryDetailView(RetrieveAPIView):
