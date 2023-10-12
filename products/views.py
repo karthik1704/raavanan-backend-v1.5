@@ -174,12 +174,8 @@ class RequestExtraRetrieveView(ListAPIView):
     lookup_field = "vid"
 
     def get_queryset(self):
-        return self.model.objects.all()
-
-    def get_object(self):
         id = self.kwargs.get("vid")
         category = Product.objects.get(variants__variant_id=id).category
-        print(category)
         try:
             extras = self.model.objects.filter(category=category)
             return extras
