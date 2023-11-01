@@ -45,13 +45,13 @@ class ProductImageSerializer(serializers.ModelSerializer):
     def get_thumbnail(self, obj):
         request = self.context.get("request")
         image = obj.image.url
-
-        return request.build_absolute_uri(image)  # type: ignore
+        if image: 
+            return request.build_absolute_uri(image)  # type: ignore
 
     def get_original(self, obj):
         request = self.context.get("request")
         image = obj.image.url
-
+    
         return request.build_absolute_uri(image)  # type: ignore
 
 

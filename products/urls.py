@@ -3,6 +3,7 @@ from django.urls import path
 from products.views import (
     CategoryDetailView,
     CategoryListView,
+    CategoryWithProducts,
     ProductDetailView,
     ProductListView,
     ProductVariantListView,
@@ -19,6 +20,7 @@ urlpatterns = [
     path("products/new/", ProductVariantNewView.as_view()),
     path("products/popular/", ProductVariantPopularView.as_view()),
     path("products/trending/", ProductVariantTrendingView.as_view()),
+    path("products/categories/", CategoryWithProducts.as_view()),
     path("products/category/<str:slug>/", ProductListView.as_view()),
     path("products/variants/<str:slug>/", ProductVariantListView.as_view()),
     path("products/detail/<str:variants__variant_id>/", ProductDetailView.as_view()),

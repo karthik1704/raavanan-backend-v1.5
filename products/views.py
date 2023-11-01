@@ -2,8 +2,10 @@ from django.db.models import Count, F, Max
 from django.http import Http404
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from products.models import Product, ProductVariant, VariantSpecification
+from products.models import Category, Product, ProductVariant, VariantSpecification
 from products.serializers import (
     CategorySerializer,
     ProductDetailSerializer,
@@ -106,7 +108,7 @@ class ProductVariantTrendingView(ListAPIView):
 
         main_products = parents_with_variants.filter(
             variants__metrics__views=F("max_view_count")
-        )
+        )[:16]
 
         return main_products
 
@@ -128,6 +130,21 @@ class ProductVariantPopularView(ListAPIView):
 
     def get_queryset(self):
         return self.model.objects.filter(publish=True)
+
+
+class CategoryWithProducts(APIView):
+    def get(self, request):
+        categories = Category.objects.all()
+        data = {}
+
+        for category in categories:
+            products = Product.objects.filter(category=category)[:16]
+            product_serializer = ProductSerializer(
+                products, many=True, context={"request": request}
+            )
+            data[category.name] = product_serializer.data
+
+        return Response(data)
 
 
 class ProductDetailView(RetrieveAPIView):
